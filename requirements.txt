@@ -1,0 +1,9 @@
+pytest
+pytest-cov
+requests-mock
+duckdb
+requests
+kivy
+packaging
+numpy
+pandas

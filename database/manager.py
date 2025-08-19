@@ -16,11 +16,14 @@ def initialize_database():
     # Conecta-se à base de dados. O ficheiro será criado se não existir.
     con = duckdb.connect(database=DB_FILE, read_only=False)
 
+    # Cria a sequencia para o ID da aplicação se ela não existir
+    con.execute("CREATE SEQUENCE IF NOT EXISTS app_id_seq;")
+
     # Cria a tabela 'applications' se ela ainda não existir.
-    # Usamos VARCHAR para texto e INTEGER PRIMARY KEY para um ID único.
+    # O ID usa a sequencia para auto-incremento.
     con.execute("""
     CREATE TABLE IF NOT EXISTS applications (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY DEFAULT nextval('app_id_seq'),
         name VARCHAR NOT NULL,
         extension_id VARCHAR,
         extension_config VARCHAR,

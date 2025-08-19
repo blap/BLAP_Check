@@ -12,12 +12,22 @@ class ExtensionManager:
 
     def load_extensions(self, path):
         """ Carrega dinamicamente os módulos de extensão do diretório especificado. """
-        print("A carregar extensões...")
-        for filename in os.listdir(path):
+        print(f"A carregar extensões de '{path}'...")
+        try:
+            # Importa o pacote para obter o seu caminho no sistema de ficheiros
+            package = importlib.import_module(path)
+            package_path = os.path.dirname(package.__file__)
+        except (ImportError, AttributeError):
+            # Se o pacote não for encontrado, não podemos carregar extensões
+            print(f"Aviso: Pacote de extensão '{path}' não encontrado ou inválido.")
+            return
+
+        for filename in os.listdir(package_path):
             if filename.endswith('.py') and not filename.startswith('__'):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"{path}.{module_name}")
+                    # Usa importação relativa dentro do pacote
+                    module = importlib.import_module(f".{module_name}", package=path)
                     for item_name in dir(module):
                         item = getattr(module, item_name)
                         if isinstance(item, type) and issubclass(item, BaseExtension) and item is not BaseExtension:
@@ -25,7 +35,7 @@ class ExtensionManager:
                             self.extensions[instance.name] = instance
                             print(f"  - Extensão '{instance.name}' carregada.")
                 except Exception as e:
-                    print(f"Erro ao carregar extensão {module_name}: {e}")
+                    print(f"Erro ao carregar a extensão '{module_name}': {e}")
 
     def run_check(self, extension_name, config):
         """ Executa a verificação usando a extensão especificada. """
