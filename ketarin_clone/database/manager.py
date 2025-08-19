@@ -51,8 +51,8 @@ def add_application(app_data):
     app_data deve ser um dicionário com as chaves correspondentes às colunas.
     """
     con = duckdb.connect(database=DB_FILE, read_only=False)
-    con.execute("INSERT INTO applications (name, extension_id, extension_config) VALUES (?, ?, ?);",
-                [app_data['name'], app_data['extension_id'], app_data['extension_config']])
+    con.execute("INSERT INTO applications (name, local_version, extension_id, extension_config) VALUES (?, ?, ?, ?);",
+                [app_data['name'], app_data['local_version'], app_data['extension_id'], app_data['extension_config']])
     con.close()
 
 def update_application(app_id, app_data):
@@ -60,8 +60,8 @@ def update_application(app_id, app_data):
     Atualiza uma aplicação existente na base de dados.
     """
     con = duckdb.connect(database=DB_FILE, read_only=False)
-    con.execute("UPDATE applications SET name = ?, extension_id = ?, extension_config = ? WHERE id = ?;",
-                [app_data['name'], app_data['extension_id'], app_data['extension_config'], app_id])
+    con.execute("UPDATE applications SET name = ?, local_version = ?, extension_id = ?, extension_config = ? WHERE id = ?;",
+                [app_data['name'], app_data['local_version'], app_data['extension_id'], app_data['extension_config'], app_id])
     con.close()
 
 def delete_application(app_id):

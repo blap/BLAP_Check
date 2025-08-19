@@ -1,15 +1,29 @@
 # ketarinclone.kv
 
-# O widget que representa cada item na nossa lista.
-# Terá um ID para que possamos aceder aos seus dados facilmente.
-# Tornamos o item inteiro num botão clicável (ToggleButton)
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+# Definição das nossas paletas de cores para os temas
+#:set dark_bg get_color_from_hex('#2c3e50')
+#:set dark_primary get_color_from_hex('#34495e')
+#:set dark_text get_color_from_hex('#ecf0f1')
+
+#:set light_bg get_color_from_hex('#ecf0f1')
+#:set light_primary get_color_from_hex('#bdc3c7')
+#:set light_text get_color_from_hex('#2c3e50')
+
 <ApplicationItem@ToggleButton>:
-    # Guarda o ID da aplicação do banco de dados.
     app_id: -1
-    # Grupo para que apenas um possa ser selecionado de cada vez
+    status_color: 0.17, 0.2, 0.24, 1
     group: 'app_items'
-    # Ao ser pressionado, chama a função da app para guardar a seleção
     on_press: app.set_selected_app(self)
+    background_normal: '' # Remove a imagem de fundo padrão do botão
+    background_color: self.status_color
+    canvas.before:
+        Color:
+            rgba: self.status_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
     orientation: 'horizontal'
     padding: 10
 
@@ -27,6 +41,11 @@
         halign: 'right'
         valign: 'middle'
         text_size: self.size
+
+    Button:
+        text: 'Baixar'
+        size_hint_x: 0.2
+        on_release: app.start_download(root)
 
 <AddEditPopup>:
     size_hint: 0.8, 0.6
@@ -54,6 +73,12 @@
                 multiline: False
 
             Label:
+                text: 'Versão Local (Opcional):'
+            TextInput:
+                id: local_version_input
+                multiline: False
+
+            Label:
                 text: 'Método de Verificação:'
             Spinner:
                 id: extension_spinner
@@ -78,49 +103,120 @@
                 text: 'Cancelar'
                 on_release: root.dismiss()
 
-
-# A tela principal da aplicação
-<MainScreen>:
-    orientation: 'vertical'
-    padding: 10
-    spacing: 10
-
-    RecycleView:
-        id: app_list_rv
-        scroll_type: ['bars', 'content']
-        scroll_wheel_distance: 30
-        bar_width: 10
-        viewclass: 'ApplicationItem' # O widget a ser usado para cada item
-
-        RecycleBoxLayout:
-            default_size: None, 40 # Altura de cada item na lista
-            default_size_hint: 1, None
-            size_hint_y: None
-            height: self.minimum_height
-            orientation: 'vertical'
-            spacing: 5
+<DownloadPopup@ModalView>:
+    size_hint: 0.7, 0.4
+    auto_dismiss: False
 
     BoxLayout:
-        size_hint_y: None
-        height: 50
+        orientation: 'vertical'
+        padding: 20
         spacing: 10
 
-        Button:
-            text: 'Adicionar'
-            on_release: app.open_add_edit_popup()
+        Label:
+            id: file_name_label
+            text: "A descarregar ficheiro..."
+            size_hint_y: None
+            height: 30
+
+        ProgressBar:
+            id: progress_bar
+            value: 0
+            max: 100
+
+        Label:
+            id: progress_label
+            text: "0%"
+            size_hint_y: None
+            height: 30
+
+<MainScreen@Screen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+
+        RecycleView:
+            id: app_list_rv
+            scroll_type: ['bars', 'content']
+            scroll_wheel_distance: 30
+            bar_width: 10
+            viewclass: 'ApplicationItem'
+
+            RecycleBoxLayout:
+                default_size: None, 40
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                spacing: 5
+
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+
+            Button:
+                text: 'Configurações'
+                on_release: app.root.current = 'settings'
+
+            Button:
+                text: 'Adicionar'
+                on_release: app.open_add_edit_popup()
+
+            Button:
+                id: edit_button
+                text: 'Editar'
+                on_release: app.open_edit_popup_for_selected()
+                disabled: not app.selected_app_data
+
+            Button:
+                id: remove_button
+                text: 'Remover'
+                on_release: app.delete_selected_app()
+                disabled: not app.selected_app_data
+
+            Button:
+                text: 'Verificar'
+                on_release: app.check_selected_app()
+
+            Button:
+                text: 'Verificar Todos'
+                on_release: app.check_all_apps()
+
+<SettingsScreen@Screen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+
+        Label:
+            text: 'Configurações'
+            font_size: '24sp'
+            size_hint_y: None
+            height: 40
+
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            Label:
+                text: 'Tema da Aplicação:'
+            Spinner:
+                id: theme_spinner
+                text: app.config.get('theme', 'Escuro')
+                values: ['Escuro', 'Claro']
+                on_text: app.change_theme(self.text)
+
+        Widget:
 
         Button:
-            text: 'Editar'
-            on_release: app.open_edit_popup_for_selected()
+            text: 'Voltar'
+            size_hint_y: None
+            height: 50
+            on_release: app.root.current = 'main'
 
-        Button:
-            text: 'Remover'
-            on_release: app.delete_selected_app()
-
-        Button:
-            text: 'Verificar'
-            on_release: app.check_selected_app()
-
-        Button:
-            text: 'Verificar Todos'
-            on_release: app.check_all_apps()
+ScreenManager:
+    id: screen_manager
+    MainScreen:
+        name: 'main'
+    SettingsScreen:
+        name: 'settings'
