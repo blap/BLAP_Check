@@ -1,0 +1,126 @@
+# ketarinclone.kv
+
+# O widget que representa cada item na nossa lista.
+# Terá um ID para que possamos aceder aos seus dados facilmente.
+# Tornamos o item inteiro num botão clicável (ToggleButton)
+<ApplicationItem@ToggleButton>:
+    # Guarda o ID da aplicação do banco de dados.
+    app_id: -1
+    # Grupo para que apenas um possa ser selecionado de cada vez
+    group: 'app_items'
+    # Ao ser pressionado, chama a função da app para guardar a seleção
+    on_press: app.set_selected_app(self)
+    orientation: 'horizontal'
+    padding: 10
+
+    Label:
+        id: app_name_label
+        text: "Nome da App"
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+
+    Label:
+        id: app_version_label
+        text: "Versão: N/A"
+        size_hint_x: 0.3
+        halign: 'right'
+        valign: 'middle'
+        text_size: self.size
+
+<AddEditPopup>:
+    size_hint: 0.8, 0.6
+    auto_dismiss: False
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: self.title
+            font_size: '20sp'
+            size_hint_y: None
+            height: 40
+
+        GridLayout:
+            cols: 2
+            spacing: 10
+
+            Label:
+                text: 'Nome da Aplicação:'
+            TextInput:
+                id: app_name_input
+                multiline: False
+
+            Label:
+                text: 'Método de Verificação:'
+            Spinner:
+                id: extension_spinner
+                text: 'Selecione um método'
+
+            Label:
+                id: config_label
+                text: 'Configuração:'
+            TextInput:
+                id: extension_config_input
+                multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            spacing: 10
+
+            Button:
+                text: 'Salvar'
+                on_release: root.save()
+            Button:
+                text: 'Cancelar'
+                on_release: root.dismiss()
+
+
+# A tela principal da aplicação
+<MainScreen>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+
+    RecycleView:
+        id: app_list_rv
+        scroll_type: ['bars', 'content']
+        scroll_wheel_distance: 30
+        bar_width: 10
+        viewclass: 'ApplicationItem' # O widget a ser usado para cada item
+
+        RecycleBoxLayout:
+            default_size: None, 40 # Altura de cada item na lista
+            default_size_hint: 1, None
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: 'vertical'
+            spacing: 5
+
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 10
+
+        Button:
+            text: 'Adicionar'
+            on_release: app.open_add_edit_popup()
+
+        Button:
+            text: 'Editar'
+            on_release: app.open_edit_popup_for_selected()
+
+        Button:
+            text: 'Remover'
+            on_release: app.delete_selected_app()
+
+        Button:
+            text: 'Verificar'
+            on_release: app.check_selected_app()
+
+        Button:
+            text: 'Verificar Todos'
+            on_release: app.check_all_apps()
