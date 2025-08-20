@@ -8,3 +8,7 @@ __pycache__/
 
 # Generated data
 data/
+
+# Build artifacts
+build/
+dist/

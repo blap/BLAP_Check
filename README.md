@@ -50,6 +50,32 @@ Para executar esta aplicação localmente, siga os seguintes passos:
     ```
     A aplicação irá criar automaticamente um diretório `data/` com o ficheiro da base de dados `app_database.db`.
 
+    Alternativamente, pode usar os scripts de execução:
+    - No Linux/macOS: `./run.sh`
+    - No Windows: `run.bat`
+
+## Criando uma Versão Portátil (Standalone)
+
+Este projeto inclui scripts para empacotar a aplicação numa versão portátil que não requer uma instalação de Python ou dependências no sistema de destino.
+
+1.  **Certifique-se de que as dependências de desenvolvimento estão instaladas**, incluindo o `PyInstaller`:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Execute o script de build para o seu sistema operativo:**
+    - **No Linux/macOS:**
+      ```bash
+      ./build.sh
+      ```
+      Isto irá gerar um ficheiro `dist/KetarinClone-linux-portable.zip`.
+
+    - **No Windows:**
+      ```bat
+      build.bat
+      ```
+      Isto irá gerar uma pasta `dist/KetarinClone`. Pode compactar esta pasta para a partilhar.
+
 ## Como Utilizar
 
 1.  **Adicionar uma Aplicação**:
@@ -99,15 +125,14 @@ A aplicação irá carregar automaticamente a sua nova extensão ao iniciar.
 
 ## Executar os Testes
 
-O projeto inclui um conjunto de testes para garantir a qualidade do código. Para os executar:
+O projeto inclui um conjunto de testes para garantir a qualidade do código. Para os executar, pode usar os scripts fornecidos:
 
+- No Linux/macOS: `./run_tests.sh`
+- No Windows: `run_tests.bat`
+
+Alternativamente, pode executar o `pytest` diretamente:
 ```bash
 pytest
-```
-
-Para ver um relatório de cobertura de testes:
-```bash
-pytest --cov
 ```
 
 ## Dependências Principais
